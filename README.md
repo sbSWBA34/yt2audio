@@ -37,13 +37,27 @@ yt2audio https://open.spotify.com/album/...
 - [spotdl](https://github.com/spotDL/spotify-downloader)
 - `requests` (Python package)
 
-## Install
+## Install — Windows
 
 1. Install Python dependencies:
    ```
    pip install spotdl yt-dlp requests
    ```
 2. Install FFmpeg
-3. Add to your PATH:
-   - **Windows:** use `yt2audio.bat`
-   - **macOS/Linux:** use `yt2audio.sh` (`chmod +x yt2audio.sh`)
+3. Add `yt2audio.bat` to your PATH
+
+## Install — macOS
+
+1. Install Python dependencies:
+   ```
+   pip3 install spotdl yt-dlp requests
+   ```
+2. Install FFmpeg:
+   ```
+   brew install ffmpeg
+   ```
+3. Make the script executable and add to PATH:
+   ```
+   chmod +x yt2audio.sh
+   sudo cp yt2audio.sh /usr/local/bin/yt2audio
+   ```
