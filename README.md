@@ -26,6 +26,7 @@ yt2audio https://open.spotify.com/album/...
 
 **Options:**
 - `-f mp3` — output format (default: m4a)
+- `-q 320` — audio quality in kbps (default: 192, use `0` for best)
 - `-o ./music` — output directory (default: current dir)
 
 ## Requirements
