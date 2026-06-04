@@ -52,11 +52,15 @@ yt2audio https://open.spotify.com/album/...
    ```
    pip3 install spotdl yt-dlp requests
    ```
-2. Install FFmpeg:
+2. Install Homebrew (if not installed):
+   ```
+   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+   ```
+3. Install FFmpeg:
    ```
    brew install ffmpeg
    ```
-3. Make the script executable and add to PATH:
+4. Make the script executable and add to PATH:
    ```
    chmod +x yt2audio.sh
    sudo cp yt2audio.sh /usr/local/bin/yt2audio
