@@ -44,4 +44,6 @@ yt2audio https://open.spotify.com/album/...
    pip install spotdl yt-dlp requests
    ```
 2. Install FFmpeg
-3. Add `yt2audio.py` to your PATH
+3. Add to your PATH:
+   - **Windows:** use `yt2audio.bat`
+   - **macOS/Linux:** use `yt2audio.sh` (`chmod +x yt2audio.sh`)
