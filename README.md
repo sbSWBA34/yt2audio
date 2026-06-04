@@ -56,11 +56,21 @@ yt2audio https://open.spotify.com/album/...
    ```
    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
    ```
-3. Install FFmpeg:
+3. Follow the on-screen "Next steps" from the Homebrew installer to add it to your PATH, then either open a new terminal or run:
+   ```
+   # Apple Silicon Macs:
+   echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
+   eval "$(/opt/homebrew/bin/brew shellenv)"
+
+   # Intel Macs:
+   echo 'eval "$(/usr/local/bin/brew shellenv)"' >> ~/.zprofile
+   eval "$(/usr/local/bin/brew shellenv)"
+   ```
+4. Install FFmpeg:
    ```
    brew install ffmpeg
    ```
-4. Make the script executable and add to PATH:
+5. Make the script executable and add to PATH:
    ```
    chmod +x yt2audio.sh
    sudo cp yt2audio.sh /usr/local/bin/yt2audio
