@@ -14,6 +14,14 @@ from typing import Optional
 import requests
 
 
+def _run(cmd, timeout=120):
+    """Run command, decode output as UTF-8 with error replacement."""
+    r = subprocess.run(cmd, capture_output=True, text=False, timeout=timeout)
+    stdout = r.stdout.decode("utf-8", errors="replace")
+    stderr = r.stderr.decode("utf-8", errors="replace") if r.stderr else ""
+    return type("Result", (), {"returncode": r.returncode, "stdout": stdout, "stderr": stderr})()
+
+
 def check_deps() -> None:
     missing = []
     for dep in ["yt-dlp", "ffmpeg"]:
@@ -32,25 +40,20 @@ def sanitize(name: str) -> str:
 
 
 def get_tracks(url: str) -> list[dict]:
-    r = subprocess.run(
-        ["spotdl", "save", url, "--save-file", "-"],
-        capture_output=True, text=True, timeout=120,
-    )
+    r = _run(["spotdl", "save", url, "--save-file", "-"], timeout=120)
     if r.returncode:
         print("SpotDL error:", r.stderr or r.stdout)
         sys.exit(1)
-    idx = r.stdout.find("[")
+    normalized = r.stdout.replace("\r\n", "\n")
+    idx = normalized.find("[")
     if idx == -1:
         print("Error: no JSON in spotdl output")
         sys.exit(1)
-    return json.loads(r.stdout[idx:])
+    return json.loads(normalized[idx:])
 
 
 def resolve_yt(spotify_url: str) -> Optional[str]:
-    r = subprocess.run(
-        ["spotdl", "url", "--", spotify_url],
-        capture_output=True, text=True, timeout=60,
-    )
+    r = _run(["spotdl", "url", "--", spotify_url], timeout=120)
     if r.returncode:
         return None
     for line in r.stdout.strip().split("\n")[::-1]:
@@ -70,7 +73,7 @@ def dl_audio(youtube_url: str, fmt: str, quality: str, out_dir: Path) -> Optiona
         "--no-add-metadata", "--exec", f"echo {marker}{{}}",
         "--", youtube_url,
     ]
-    r = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
+    r = _run(cmd, timeout=300)
     if r.returncode:
         print(r.stderr)
         return None
