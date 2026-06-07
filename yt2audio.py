@@ -68,16 +68,22 @@ def dl_audio(youtube_url: str, fmt: str, quality: str, out_dir: Path) -> Optiona
     marker = "__FILE__:"
     cmd = [
         "yt-dlp", "-x", "--audio-format", fmt,
-        "--audio-quality", quality,
+        "--audio-quality", quality, "--newline",
         "-o", templ, "--no-playlist", "--no-embed-thumbnail",
         "--no-add-metadata", "--exec", f"echo {marker}{{}}",
         "--", youtube_url,
     ]
-    r = _run(cmd, timeout=300)
+    stdout_lines = []
+    r = subprocess.run(cmd, capture_output=True, text=False, timeout=300)
+    stderr = r.stderr.decode("utf-8", errors="replace")
+    for line in stderr.split("\n"):
+        line = line.strip()
+        if line:
+            print(f"  {line}")
+    stdout = r.stdout.decode("utf-8", errors="replace")
     if r.returncode:
-        print(r.stderr)
         return None
-    for line in r.stdout.split("\n"):
+    for line in stdout.split("\n"):
         if marker in line:
             return Path(line.split(marker, 1)[1].strip().strip('"'))
     return None
