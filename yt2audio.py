@@ -164,7 +164,7 @@ def main() -> None:
     p.add_argument("-f", "--format", choices=["mp3", "m4a"], default="m4a")
     p.add_argument("-q", "--quality", default="192",
                    help="Audio quality (e.g. 128, 192, 320, or 0 for best)")
-    p.add_argument("-o", "--output", default=".")
+    p.add_argument("-o", "--output", default=str(Path.home() / "Desktop" / "yt2audio"))
     args = p.parse_args()
 
     check_deps()
