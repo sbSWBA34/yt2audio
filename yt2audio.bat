@@ -22,7 +22,7 @@ if %ERRORLEVEL% neq 0 (
 )
 
 echo [*] Installing/updating Python packages...
-pip install -q spotdl yt-dlp requests
+pip install -q spotdl yt-dlp requests yt-dlp-ejs
 
 echo.
 python "%~dp0yt2audio.py" %*

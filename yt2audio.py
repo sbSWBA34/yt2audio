@@ -72,7 +72,8 @@ def dl_audio(youtube_url: str, fmt: str, quality: str, out_dir: Path) -> Optiona
         q = q + "K"
     cmd = [
         sys.executable, "-m", "yt_dlp", "-x", "--audio-format", fmt,
-        "--audio-quality", q, "--print", "after_dl:filepath",
+        "--audio-quality", q, "--js-runtimes", "ejs",
+        "--print", "after_dl:filepath",
         "-o", templ, "--no-playlist",
         "--", youtube_url,
     ]
