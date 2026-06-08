@@ -75,12 +75,11 @@ def dl_audio(youtube_url: str, fmt: str, quality: str, out_dir: Path) -> Optiona
     q = quality
     if q.isdigit() and int(q) > 10:
         q = q + "K"
+    before = {p.name for p in out_dir.iterdir()} if out_dir.exists() else set()
     cmd = [
         sys.executable, "-m", "yt_dlp", "-x", "--audio-format", fmt,
-        "--audio-quality", q,
-        "--print", "after_dl:filepath",
-        "-o", templ, "--no-playlist",
-        "--", youtube_url,
+        "--audio-quality", q, "--no-playlist",
+        "-o", templ, "--", youtube_url,
     ]
     r = subprocess.run(cmd, capture_output=True, text=False, timeout=300)
     stderr = r.stderr.decode("utf-8", errors="replace")
@@ -88,13 +87,12 @@ def dl_audio(youtube_url: str, fmt: str, quality: str, out_dir: Path) -> Optiona
         line = line.strip()
         if line:
             print(f"  {line}")
-    stdout = r.stdout.decode("utf-8", errors="replace")
     if r.returncode:
         return None
-    for line in stdout.strip().split("\n"):
-        line = line.strip()
-        if line and Path(line).suffix in [".m4a", ".mp3", ".webm", ".opus"]:
-            return Path(line)
+    exts = {".m4a", ".mp3", ".webm", ".opus"}
+    for p in out_dir.iterdir():
+        if p.name not in before and p.suffix in exts:
+            return p
     return None
 
 
