@@ -31,6 +31,11 @@ def check_deps() -> None:
             missing.append(dep.replace("_", "-"))
     if not shutil.which("ffmpeg"):
         missing.append("ffmpeg")
+    if not shutil.which("deno"):
+        print("yt2audio needs a JavaScript runtime to download from YouTube.")
+        print("Install Deno: winget install Deno.Deno")
+        print("Then restart the terminal and try again.")
+        sys.exit(1)
     if missing:
         print(f"Missing deps: {', '.join(missing)}")
         print("Install: pip install yt-dlp spotdl requests  and  ffmpeg")

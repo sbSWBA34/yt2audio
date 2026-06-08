@@ -22,10 +22,19 @@ if %ERRORLEVEL% neq 0 (
 )
 
 echo [*] Installing/updating Python packages...
-where deno >nul 2>nul || winget install Deno.Deno --silent 2>nul
 pip install -q spotdl yt-dlp requests
 
 echo.
+
+where deno >nul 2>nul
+if %ERRORLEVEL% neq 0 (
+    echo [^!] JavaScript runtime not found!
+    echo     Run: winget install Deno.Deno
+    echo     Then restart this script.
+    pause
+    exit /b 1
+)
+
 python "%~dp0yt2audio.py" %*
 echo.
 pause
