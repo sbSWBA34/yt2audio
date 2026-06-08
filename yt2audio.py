@@ -67,9 +67,12 @@ def resolve_yt(spotify_url: str) -> Optional[str]:
 def dl_audio(youtube_url: str, fmt: str, quality: str, out_dir: Path) -> Optional[Path]:
     out_dir.mkdir(parents=True, exist_ok=True)
     templ = str(out_dir / "%(title)s.%(ext)s")
+    q = quality
+    if q.isdigit() and int(q) > 10:
+        q = q + "K"
     cmd = [
         sys.executable, "-m", "yt_dlp", "-x", "--audio-format", fmt,
-        "--audio-quality", quality, "--print", "after_dl:filepath",
+        "--audio-quality", q, "--print", "after_dl:filepath",
         "-o", templ, "--no-playlist",
         "--", youtube_url,
     ]
@@ -81,7 +84,6 @@ def dl_audio(youtube_url: str, fmt: str, quality: str, out_dir: Path) -> Optiona
             print(f"  {line}")
     stdout = r.stdout.decode("utf-8", errors="replace")
     if r.returncode:
-        print("  yt-dlp failed")
         return None
     for line in stdout.strip().split("\n"):
         line = line.strip()
@@ -152,7 +154,7 @@ def main() -> None:
     p.add_argument("query", help="Spotify URL or search query")
     p.add_argument("youtube_url", nargs="?", help="YouTube URL (optional for single tracks)")
     p.add_argument("-f", "--format", choices=["mp3", "m4a"], default="m4a")
-    p.add_argument("-q", "--quality", default="192", help="Audio quality (128, 192, 320, or 0 for best)")
+    p.add_argument("-q", "--quality", default="192K", help="Audio quality (128K, 192K, 320K, or 0 for best)")
     p.add_argument("-o", "--output", default=str(Path.home() / "Desktop" / "yt2audio"))
     args = p.parse_args()
     check_deps()
