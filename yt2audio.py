@@ -47,7 +47,7 @@ def sanitize(name: str) -> str:
 
 
 def get_tracks(url: str) -> list[dict]:
-    r = _run([sys.executable, "-m", "spotdl", "save", url, "--save-file", "-"], timeout=120)
+    r = _run([sys.executable, "-m", "spotdl", "save", "--save-file", "-", "--", url], timeout=120)
     if r.returncode:
         print("SpotDL error:", r.stderr or r.stdout)
         sys.exit(1)
