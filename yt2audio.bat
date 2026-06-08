@@ -21,8 +21,11 @@ if %ERRORLEVEL% neq 0 (
     exit /b 1
 )
 
-echo [*] Installing/updating Python packages...
-pip install -q spotdl yt-dlp requests
+python -c "import spotdl, yt_dlp, requests" 2>nul
+if %ERRORLEVEL% neq 0 (
+    echo [*] Installing Python packages...
+    pip install -q spotdl yt-dlp requests
+)
 
 echo.
 
