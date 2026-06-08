@@ -22,7 +22,8 @@ if %ERRORLEVEL% neq 0 (
 )
 
 echo [*] Installing/updating Python packages...
-pip install -q spotdl yt-dlp requests yt-dlp-ejs
+where deno >nul 2>nul || winget install Deno.Deno --silent 2>nul
+pip install -q spotdl yt-dlp requests
 
 echo.
 python "%~dp0yt2audio.py" %*
