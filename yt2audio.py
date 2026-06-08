@@ -24,11 +24,13 @@ def _run(cmd, timeout=120):
 
 def check_deps() -> None:
     missing = []
-    for dep in ["yt-dlp", "ffmpeg"]:
-        if not shutil.which(dep):
-            missing.append(dep)
-    if not shutil.which("spotdl"):
-        missing.append("spotdl")
+    for dep in ["yt_dlp", "spotdl"]:
+        try:
+            __import__(dep)
+        except ImportError:
+            missing.append(dep.replace("_", "-"))
+    if not shutil.which("ffmpeg"):
+        missing.append("ffmpeg")
     if missing:
         print(f"Missing dependencies: {', '.join(missing)}")
         print("Install: pip install yt-dlp spotdl requests  and  ffmpeg")
@@ -40,7 +42,7 @@ def sanitize(name: str) -> str:
 
 
 def get_tracks(url: str) -> list[dict]:
-    r = _run(["spotdl", "save", url, "--save-file", "-"], timeout=120)
+    r = _run([sys.executable, "-m", "spotdl", "save", url, "--save-file", "-"], timeout=120)
     if r.returncode:
         print("SpotDL error:", r.stderr or r.stdout)
         sys.exit(1)
@@ -53,7 +55,7 @@ def get_tracks(url: str) -> list[dict]:
 
 
 def resolve_yt(spotify_url: str) -> Optional[str]:
-    r = _run(["spotdl", "url", "--", spotify_url], timeout=120)
+    r = _run([sys.executable, "-m", "spotdl", "url", "--", spotify_url], timeout=120)
     if r.returncode:
         return None
     for line in r.stdout.strip().split("\n")[::-1]:
@@ -67,7 +69,7 @@ def dl_audio(youtube_url: str, fmt: str, quality: str, out_dir: Path) -> Optiona
     templ = str(out_dir / "%(title)s.%(ext)s")
     marker = "__FILE__:"
     cmd = [
-        "yt-dlp", "-x", "--audio-format", fmt,
+        sys.executable, "-m", "yt_dlp", "-x", "--audio-format", fmt,
         "--audio-quality", quality, "--newline",
         "-o", templ, "--no-playlist", "--no-embed-thumbnail",
         "--no-add-metadata", "--exec", f"echo {marker}{{}}",
@@ -173,7 +175,6 @@ def main() -> None:
 
     out_dir = Path(args.output).resolve()
 
-    # Single track with explicit YouTube URL
     if len(tracks) == 1 and args.youtube_url:
         t = tracks[0]
         print(f"\n  {t['artist']} - {t['name']}")
@@ -190,7 +191,6 @@ def main() -> None:
             cover.unlink(missing_ok=True)
         return
 
-    # Playlist / auto-search
     success = 0
     for t in tracks:
         if process_track(t, args.format, args.quality, out_dir):

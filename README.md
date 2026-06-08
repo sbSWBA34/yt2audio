@@ -27,51 +27,42 @@ yt2audio https://open.spotify.com/album/...
 **Options:**
 - `-f mp3` — output format (default: m4a)
 - `-q 320` — audio quality in kbps (default: 192, use `0` for best)
-- `-o ./music` — output directory (default: current dir)
+- `-o ./music` — output directory (default: Desktop/yt2audio)
 
 ## Requirements
 
 - Python 3
-- [yt-dlp](https://github.com/yt-dlp/yt-dlp)
-- [FFmpeg](https://ffmpeg.org/)
-- [spotdl](https://github.com/spotDL/spotify-downloader)
-- `requests` (Python package)
+- FFmpeg (https://ffmpeg.org/)
 
 ## Install — Windows
 
-1. Install Python dependencies:
+1. Install FFmpeg:
    ```
-   pip install spotdl yt-dlp requests
+   winget install FFmpeg
    ```
-2. Install FFmpeg
-3. Add `yt2audio.bat` to your PATH
+2. Download `yt2audio.bat` and `yt2audio.py` to the same folder
+3. Run:
+   ```
+   yt2audio https://open.spotify.com/track/...
+   ```
+   (Dependencies auto-install on first run)
+
+Or add the folder to your PATH to use `yt2audio` from anywhere.
 
 ## Install — macOS
 
-1. Install Python dependencies:
-   ```
-   pip3 install spotdl yt-dlp requests
-   ```
-2. Install Homebrew (if not installed):
+1. Install Homebrew + FFmpeg:
    ```
    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-   ```
-3. Follow the on-screen "Next steps" from the Homebrew installer to add it to your PATH, then either open a new terminal or run:
-   ```
-   # Apple Silicon Macs:
-   echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
-   eval "$(/opt/homebrew/bin/brew shellenv)"
-
-   # Intel Macs:
-   echo 'eval "$(/usr/local/bin/brew shellenv)"' >> ~/.zprofile
-   eval "$(/usr/local/bin/brew shellenv)"
-   ```
-4. Install FFmpeg:
-   ```
    brew install ffmpeg
    ```
-5. Make the script executable and add to PATH:
+2. Download `yt2audio.py` and `yt2audio.sh`:
    ```
    chmod +x yt2audio.sh
    sudo cp yt2audio.sh /usr/local/bin/yt2audio
+   sudo cp yt2audio.py /usr/local/bin/
+   ```
+3. Install Python deps:
+   ```
+   pip3 install spotdl yt-dlp requests
    ```
