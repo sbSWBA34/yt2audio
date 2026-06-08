@@ -29,7 +29,7 @@ echo.
 where deno >nul 2>nul
 if %ERRORLEVEL% neq 0 (
     echo [^!] JavaScript runtime not found!
-    echo     Run: winget install Deno.Deno
+    echo     Run: winget install DenoLand.Deno
     echo     Then restart this script.
     pause
     exit /b 1

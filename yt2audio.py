@@ -33,7 +33,7 @@ def check_deps() -> None:
         missing.append("ffmpeg")
     if not shutil.which("deno"):
         print("yt2audio needs a JavaScript runtime to download from YouTube.")
-        print("Install Deno: winget install Deno.Deno")
+        print("Install Deno: winget install DenoLand.Deno")
         print("Then restart the terminal and try again.")
         sys.exit(1)
     if missing:
