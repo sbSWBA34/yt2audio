@@ -47,7 +47,7 @@ def sanitize(name: str) -> str:
 
 
 def get_tracks(url: str) -> list[dict]:
-    r = _run([sys.executable, "-m", "spotdl", "save", "--save-file", "-", "--", url], timeout=120)
+    r = _run([sys.executable, "-m", "spotdl", "save", url, "--save-file", "-"], timeout=120)
     if r.returncode:
         print("SpotDL error:", r.stderr or r.stdout)
         sys.exit(1)
@@ -60,7 +60,7 @@ def get_tracks(url: str) -> list[dict]:
 
 
 def resolve_yt(spotify_url: str) -> Optional[str]:
-    r = _run([sys.executable, "-m", "spotdl", "url", "--", spotify_url], timeout=120)
+    r = _run([sys.executable, "-m", "spotdl", "url", spotify_url], timeout=120)
     if r.returncode:
         return None
     for line in r.stdout.strip().split("\n")[::-1]:
