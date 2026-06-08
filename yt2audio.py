@@ -3,6 +3,7 @@
 
 import argparse
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -15,7 +16,6 @@ import requests
 
 
 def _run(cmd, timeout=120):
-    """Run command, decode output as UTF-8 with error replacement."""
     r = subprocess.run(cmd, capture_output=True, text=False, timeout=timeout)
     stdout = r.stdout.decode("utf-8", errors="replace")
     stderr = r.stderr.decode("utf-8", errors="replace") if r.stderr else ""
@@ -32,7 +32,7 @@ def check_deps() -> None:
     if not shutil.which("ffmpeg"):
         missing.append("ffmpeg")
     if missing:
-        print(f"Missing dependencies: {', '.join(missing)}")
+        print(f"Missing deps: {', '.join(missing)}")
         print("Install: pip install yt-dlp spotdl requests  and  ffmpeg")
         sys.exit(1)
 
@@ -67,15 +67,12 @@ def resolve_yt(spotify_url: str) -> Optional[str]:
 def dl_audio(youtube_url: str, fmt: str, quality: str, out_dir: Path) -> Optional[Path]:
     out_dir.mkdir(parents=True, exist_ok=True)
     templ = str(out_dir / "%(title)s.%(ext)s")
-    marker = "__FILE__:"
     cmd = [
         sys.executable, "-m", "yt_dlp", "-x", "--audio-format", fmt,
-        "--audio-quality", quality, "--newline",
-        "-o", templ, "--no-playlist", "--no-embed-thumbnail",
-        "--no-add-metadata", "--exec", f"echo {marker}{{}}",
+        "--audio-quality", quality, "--print", "after_dl:filepath",
+        "-o", templ, "--no-playlist",
         "--", youtube_url,
     ]
-    stdout_lines = []
     r = subprocess.run(cmd, capture_output=True, text=False, timeout=300)
     stderr = r.stderr.decode("utf-8", errors="replace")
     for line in stderr.split("\n"):
@@ -84,10 +81,12 @@ def dl_audio(youtube_url: str, fmt: str, quality: str, out_dir: Path) -> Optiona
             print(f"  {line}")
     stdout = r.stdout.decode("utf-8", errors="replace")
     if r.returncode:
+        print("  yt-dlp failed")
         return None
-    for line in stdout.split("\n"):
-        if marker in line:
-            return Path(line.split(marker, 1)[1].strip().strip('"'))
+    for line in stdout.strip().split("\n"):
+        line = line.strip()
+        if line and Path(line).suffix in [".m4a", ".mp3", ".webm", ".opus"]:
+            return Path(line)
     return None
 
 
@@ -134,55 +133,37 @@ def process_track(t: dict, fmt: str, quality: str, out_dir: Path) -> bool:
     if not yt_url:
         print(f"  [!] Could not find YouTube match, skipping")
         return False
-
     cover = download_cover(t["cover_url"]) if t.get("cover_url") else None
-
-    meta = {
-        "title": t["name"],
-        "artist": t["artist"],
-        "album": t["album_name"],
-        "year": str(t["year"]),
-    }
-
+    meta = {"title": t["name"], "artist": t["artist"], "album": t["album_name"], "year": str(t["year"])}
     audio = dl_audio(yt_url, fmt, quality, out_dir)
     if not audio:
-        print("  [!] Download failed, skipping")
         if cover:
             cover.unlink(missing_ok=True)
         return False
-
-    embed_meta(audio, meta, cover, fmt)
+    out = embed_meta(audio, meta, cover, fmt)
     if cover:
         cover.unlink(missing_ok=True)
+    print(f"  Done: {out}")
     return True
 
 
 def main() -> None:
-    p = argparse.ArgumentParser(
-        description="yt2audio - YouTube audio + Spotify metadata",
-    )
-    p.add_argument("spotify_url", help="Spotify track/playlist/album URL")
+    p = argparse.ArgumentParser(description="yt2audio - YouTube audio + Spotify metadata")
+    p.add_argument("query", help="Spotify URL or search query")
     p.add_argument("youtube_url", nargs="?", help="YouTube URL (optional for single tracks)")
     p.add_argument("-f", "--format", choices=["mp3", "m4a"], default="m4a")
-    p.add_argument("-q", "--quality", default="192",
-                   help="Audio quality (e.g. 128, 192, 320, or 0 for best)")
+    p.add_argument("-q", "--quality", default="192", help="Audio quality (128, 192, 320, or 0 for best)")
     p.add_argument("-o", "--output", default=str(Path.home() / "Desktop" / "yt2audio"))
     args = p.parse_args()
-
     check_deps()
-    tracks = get_tracks(args.spotify_url)
+    tracks = get_tracks(args.query)
     print(f"Found {len(tracks)} track(s)")
-
     out_dir = Path(args.output).resolve()
-
     if len(tracks) == 1 and args.youtube_url:
         t = tracks[0]
         print(f"\n  {t['artist']} - {t['name']}")
         cover = download_cover(t["cover_url"]) if t.get("cover_url") else None
-        meta = {
-            "title": t["name"], "artist": t["artist"],
-            "album": t["album_name"], "year": str(t["year"]),
-        }
+        meta = {"title": t["name"], "artist": t["artist"], "album": t["album_name"], "year": str(t["year"])}
         audio = dl_audio(args.youtube_url, args.format, args.quality, out_dir)
         if audio:
             out = embed_meta(audio, meta, cover, args.format)
@@ -190,12 +171,10 @@ def main() -> None:
         if cover:
             cover.unlink(missing_ok=True)
         return
-
     success = 0
     for t in tracks:
         if process_track(t, args.format, args.quality, out_dir):
             success += 1
-
     print(f"\nDone! {success}/{len(tracks)} downloaded.")
 
 
