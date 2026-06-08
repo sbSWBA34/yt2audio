@@ -159,7 +159,7 @@ def main() -> None:
     p.add_argument("youtube_url", nargs="?", help="YouTube URL (optional for single tracks)")
     p.add_argument("-f", "--format", choices=["mp3", "m4a"], default="m4a")
     p.add_argument("-q", "--quality", default="192K", help="Audio quality (128K, 192K, 320K, or 0 for best)")
-    p.add_argument("-o", "--output", default=str(Path.home() / "Desktop" / "yt2audio" / "downloads"))
+    p.add_argument("-o", "--output", default=str(Path.home() / "Desktop" / "downloads"))
     args = p.parse_args()
     check_deps()
     tracks = get_tracks(args.query)
